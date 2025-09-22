@@ -1,51 +1,55 @@
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overzicht Verkopers</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-</head>
-<body>
-    <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4">Overzicht van alle verkopers</h1>
+    @vite('resources/css/app.css')
 
-        <table class="table-auto border-collapse border border-gray-400 w-full">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Overzicht van alle verkopers</h1>
+        <table>
             <thead>
-                <tr class="bg-gray-200">
-                    <th class="border border-gray-400 px-4 py-2">Naam</th>
-                    <th class="border border-gray-400 px-4 py-2">Speciale Status</th>
-                    <th class="border border-gray-400 px-4 py-2">Soort</th>
-                    <th class="border border-gray-400 px-4 py-2">Stand Type</th>
-                    <th class="border border-gray-400 px-4 py-2">Dagen</th>
-                    <th class="border border-gray-400 px-4 py-2">Logo</th>
-                    <th class="border border-gray-400 px-4 py-2">Opmerking</th>
-                    <th class="border border-gray-400 px-4 py-2">Aangemaakt</th>
-                    <th class="border border-gray-400 px-4 py-2">Gewijzigd</th>
+                <tr>
+                    <th>Naam</th>
+                    <th>Speciale Status</th>
+                    <th>Soort</th>
+                    <th>Stand Type</th>
+                    <th>Dagen</th>
+                    <th>Logo</th>
+                    <th>Opmerking</th>
+                    <th>Aangemaakt</th>
+                    <th>Gewijzigd</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($verkopers as $verkoper)
                     <tr>
-                        <td class="border border-gray-400 px-4 py-2">{{ $verkoper->Naam }}</td>
-                        <td class="border border-gray-400 px-4 py-2">{{ $verkoper->SpecialeStatus ? 'Ja' : 'Nee' }}</td>
-                        <td class="border border-gray-400 px-4 py-2">{{ $verkoper->VerkooptSoort }}</td>
-                        <td class="border border-gray-400 px-4 py-2">{{ $verkoper->StandType }}</td>
-                        <td class="border border-gray-400 px-4 py-2">{{ $verkoper->Dagen }}</td>
-                        <td class="border border-gray-400 px-4 py-2">
+                        <td data-label="Naam">{{ $verkoper->Naam }}</td>
+                        <td data-label="Speciale Status">{{ $verkoper->SpecialeStatus ? 'Ja' : 'Nee' }}</td>
+                        <td data-label="Soort">{{ $verkoper->VerkooptSoort }}</td>
+                        <td data-label="Stand Type">{{ $verkoper->StandType }}</td>
+                        <td data-label="Dagen">{{ $verkoper->Dagen }}</td>
+                        <td data-label="Logo">
                             @if($verkoper->Logo)
-                                <img src="{{ asset('storage/' . $verkoper->Logo) }}" alt="Logo" class="h-12">
+                                <img src="{{ asset('storage/' . $verkoper->Logo) }}" alt="Logo">
                             @else
                                 Geen
                             @endif
                         </td>
-                        <td class="border border-gray-400 px-4 py-2">{{ $verkoper->Opmerking }}</td>
-                        <td class="border border-gray-400 px-4 py-2">{{ $verkoper->DatumAangemaakt }}</td>
-                        <td class="border border-gray-400 px-4 py-2">{{ $verkoper->DatumGewijzigd }}</td>
+                        <td data-label="Opmerking">{{ $verkoper->Opmerking }}</td>
+                        <td data-label="Aangemaakt">{{ $verkoper->DatumAangemaakt }}</td>
+                        <td data-label="Gewijzigd">{{ $verkoper->DatumGewijzigd }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
 </body>
+
 </html>

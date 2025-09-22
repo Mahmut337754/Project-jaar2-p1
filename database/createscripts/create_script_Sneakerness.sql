@@ -32,3 +32,12 @@ CREATE TABLE IF NOT EXISTS Verkoper (
     ,DatumGewijzigd DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ,DatumAangemaakt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO Verkoper (Naam, SpecialeStatus, VerkooptSoort, StandType, Dagen, Logo, Opmerking)
+VALUES
+('SneakerShop NL', 1, 'Sneakers', 'AA+', 'Zaterdag,Zondag', 'logos/sneakershop.png', 'Partner verkoper')
+,('StreetWear Co', 0, 'Kleding', 'AA', 'Zaterdag', NULL, 'Geen opmerkingen')
+,('Food & Drinks', 0, 'Eten/Drinken', 'A', 'Zondag', NULL, 'Foodtruck aanwezig')
+,('KidsCorner Fun', 0, 'Kids corner', 'A', 'Zaterdag,Zondag', NULL, 'Activiteiten voor kinderen')
+,('Custom Kicks', 0, 'Customizers', 'AA', 'Zaterdag', 'logos/customkicks.png', 'Schoenen personaliseren ter plekke');
+
