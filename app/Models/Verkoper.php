@@ -12,16 +12,16 @@ class Verkoper extends Model
     protected $table = 'Verkoper';
 
     protected $fillable = [
-        'Naam',
-        'SpecialeStatus',
-        'VerkooptSoort',
-        'StandType',
-        'Dagen',
-        'Logo',
-        'IsActief',
-        'Opmerking',
-        'DatumAangemaakt',
-        'DatumGewijzigd'
+        'Naam'
+        ,'SpecialeStatus'
+        ,'VerkooptSoort'
+        ,'StandType'
+        ,'Dagen'
+        ,'Logo'
+        ,'IsActief'
+        ,'Opmerking'
+        ,'DatumAangemaakt'
+        ,'DatumGewijzigd'
     ];
 
     public $timestamps = false; // Omdat je eigen datumvelden gebruikt
