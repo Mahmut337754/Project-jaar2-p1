@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AllergeenController;
+use App\Http\Controllers\VerkoperController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/Allergeen', [AllergeenController::class, 'index'])->name('allergenen.index');
+Route::get('/verkopers', [VerkoperController::class, 'index'])->name('verkopers.index');
