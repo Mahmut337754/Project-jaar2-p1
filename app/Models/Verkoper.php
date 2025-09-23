@@ -9,20 +9,21 @@ class Verkoper extends Model
 {
     use HasFactory;
 
+    // Verwijst naar de database-tabel 'Verkoper'
     protected $table = 'Verkoper';
 
+    // Velden die ingevuld mogen worden
     protected $fillable = [
-        'Naam'
-        ,'SpecialeStatus'
-        ,'VerkooptSoort'
-        ,'StandType'
-        ,'Dagen'
-        ,'Logo'
-        ,'IsActief'
-        ,'Opmerking'
-        ,'DatumAangemaakt'
-        ,'DatumGewijzigd'
+        'Naam',
+        'SpecialeStatus',
+        'VerkooptSoort',
+        'StandType',
+        'Dagen',
+        'Logo',
+        'IsActief',
+        'Opmerking',
+        'DatumAangemaakt',
+        'DatumGewijzigd'
     ];
-
-    public $timestamps = false; // Omdat je eigen datumvelden gebruikt
+    public $timestamps = false;
 }

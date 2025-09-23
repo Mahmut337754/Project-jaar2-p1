@@ -5,14 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overzicht Verkopers</title>
+
+    <!-- CSS van Laravel (app.css) -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @vite('resources/css/app.css')
-
 </head>
 
 <body>
     <div class="container">
         <h1>Overzicht van alle verkopers</h1>
+
+        <!-- Tabel met verkopersgegevens -->
         <table>
             <thead>
                 <tr>
@@ -28,6 +31,7 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- Loop door alle verkopers -->
                 @foreach($verkopers as $verkoper)
                     <tr>
                         <td data-label="Naam">{{ $verkoper->Naam }}</td>
@@ -36,6 +40,7 @@
                         <td data-label="Stand Type">{{ $verkoper->StandType }}</td>
                         <td data-label="Dagen">{{ $verkoper->Dagen }}</td>
                         <td data-label="Logo">
+
                             @if($verkoper->Logo)
                                 <img src="{{ asset('storage/' . $verkoper->Logo) }}" alt="Logo">
                             @else
