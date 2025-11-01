@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 
 class EventController extends Controller
@@ -148,57 +148,58 @@ class EventController extends Controller
     }
 
     /**
-     * Remove an event from storage with business logic validation
+     * Verwijder een event uit de database met uitgebreide validatie
      * 
-     * This method safely deletes an event while checking:
-     * - Whether tickets have been sold (prevents deletion if true)
-     * - Database integrity and referential constraints
-     * - Proper error handling for all scenarios
+     * Deze methode voert een veilige verwijdering uit waarbij:
+     * - Gecontroleerd wordt of er tickets verkocht zijn
+     * - Database integriteit gewaarborgd blijft
+     * - Uitgebreide logging voor audit trail
+     * - Robuuste error handling voor alle scenario's
      * 
-     * @param Event $event The event model instance to be deleted
-     * @return RedirectResponse Redirect response with success or error message
+     * @param Event $event Het event model dat verwijderd moet worden
+     * @return RedirectResponse Redirect met succes of foutmelding
      */
     public function destroy(Event $event): RedirectResponse
     {
         try {
-            // Check if event has sold tickets using relationship count
-            // This prevents deletion of events with existing purchases
-            if ($event->ticketPurchases()->count() > 0) {
+            // Load related data using joins for comprehensive validation
+            $event->load(['tickets', 'ticketPurchases.user']);
+            
+            // Check if event has sold tickets using join relationships
+            $ticketsSold = $event->ticketPurchases()
+                ->join('tickets', 'ticket_purchases.ticket_id', '=', 'tickets.id')
+                ->where('tickets.event_id', $event->id)
+                ->count();
+                
+            if ($ticketsSold > 0) {
                 return redirect()->route('admin.events.edit', $event)
                                 ->with('error', 'Event kan niet worden verwijderd, er zijn tickets verkocht.');
             }
 
-            // Store event name for success message before deletion
             $eventName = $event->name;
-            
-            // Perform the deletion
             $event->delete();
 
-            // Log successful deletion for audit trail
-            Log::info('Event deleted successfully', [
+            // Log successful deletion
+            Log::info('Event succesvol verwijderd', [
                 'event_id' => $event->id,
                 'event_name' => $eventName,
                 'user_id' => auth()->id(),
-                'user_email' => auth()->user()->email,
                 'timestamp' => now()
             ]);
 
-            // Redirect to events index with success confirmation
             return redirect()->route('admin.events.index')
                             ->with('success', "Event '{$eventName}' is succesvol verwijderd!");
         } catch (\Exception $e) {
-            // Log the error for debugging and monitoring
-            Log::error('Failed to delete event', [
+            // Log error
+            Log::error('Fout bij verwijderen event', [
                 'event_id' => $event->id,
+                'error' => $e->getMessage(),
                 'user_id' => auth()->id(),
-                'error_message' => $e->getMessage(),
-                'stack_trace' => $e->getTraceAsString(),
                 'timestamp' => now()
             ]);
             
-            // Handle any unexpected database or system errors
             return redirect()->route('admin.events.edit', $event)
-                            ->with('error', 'Er is een fout opgetreden bij het verwijderen van het event. Probeer het opnieuw.');
+                            ->with('error', 'Er is een fout opgetreden bij het verwijderen van het event.');
         }
     }
 }
