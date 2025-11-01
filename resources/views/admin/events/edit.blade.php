@@ -204,6 +204,10 @@
     </div>
 
     <script>
+        /**
+         * Confirm deletion of an event with user confirmation dialog
+         * Provides safety mechanism against accidental deletions
+         */
         function confirmDelete() {
             if (confirm('Weet je zeker dat je dit event wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.')) {
                 document.getElementById('deleteForm').submit();
