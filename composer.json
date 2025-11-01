@@ -50,7 +50,7 @@
             "@php artisan migrate --graceful --ansi"
         ],
         "dev": [
-              "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names=server,queue,vite --kill-others"
+              "php artisan serve"
         ],
         "test": [
             "@php artisan config:clear --ansi",
@@ -69,7 +69,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
-        }
+        },
+        "process-timeout": 0
     },
     "minimum-stability": "stable",
     "prefer-stable": true

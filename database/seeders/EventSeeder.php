@@ -108,5 +108,112 @@ class EventSeeder extends Seeder
             $ticketData['event_id'] = $event->id;
             Ticket::create($ticketData);
         }
+
+        // Create 5 additional events
+        
+        // Event 2: Sneaker Drop Amsterdam
+        $event2 = Event::create([
+            'name' => 'Sneaker Drop Amsterdam',
+            'description' => 'Exclusieve sneaker release event in het hart van Amsterdam. Kom langs voor de nieuwste limited edition releases van top merken.',
+            'location' => 'Amsterdam RAI, Amsterdam',
+            'start_date' => '2025-12-05',
+            'end_date' => '2025-12-05',
+            'start_time' => '18:00',
+            'end_time' => '22:00',
+            'is_active' => true,
+            'status' => 'upcoming',
+            'base_price' => 25.00,
+            'image_url' => '/images/sneaker-drop-amsterdam.jpg',
+            'additional_info' => [
+                'website' => 'https://sneakerdrop.nl',
+                'contact_email' => 'info@sneakerdrop.nl',
+                'parking' => 'Paid parking available',
+                'accessibility' => 'Fully accessible'
+            ]
+        ]);
+
+        // Event 3: Retro Sneaker Meet Utrecht
+        $event3 = Event::create([
+            'name' => 'Retro Sneaker Meet Utrecht',
+            'description' => 'Een bijeenkomst voor vintage en retro sneaker liefhebbers. Koop, verkoop en ruil je favoriete klassiekers.',
+            'location' => 'TivoliVredenburg, Utrecht',
+            'start_date' => '2025-11-28',
+            'end_date' => '2025-11-28',
+            'start_time' => '14:00',
+            'end_time' => '18:00',
+            'is_active' => true,
+            'status' => 'upcoming',
+            'base_price' => 18.00,
+            'image_url' => '/images/retro-sneaker-meet.jpg',
+            'additional_info' => [
+                'website' => 'https://retrosneakermeet.nl',
+                'contact_email' => 'hello@retrosneakermeet.nl',
+                'parking' => 'Street parking',
+                'accessibility' => 'Limited accessibility'
+            ]
+        ]);
+
+        // Event 4: Sneaker Expo Den Haag
+        $event4 = Event::create([
+            'name' => 'Sneaker Expo Den Haag',
+            'description' => 'De grootste sneaker expo van Nederland! Ontdek nieuwe trends, ontmoet designers en vind je perfecte paar.',
+            'location' => 'World Forum, Den Haag',
+            'start_date' => '2025-12-15',
+            'end_date' => '2025-12-16',
+            'start_time' => '10:00',
+            'end_time' => '17:00',
+            'is_active' => true,
+            'status' => 'upcoming',
+            'base_price' => 22.00,
+            'image_url' => '/images/sneaker-expo-denhaag.jpg',
+            'additional_info' => [
+                'website' => 'https://sneakerexpo.nl',
+                'contact_email' => 'contact@sneakerexpo.nl',
+                'parking' => 'Free parking available',
+                'accessibility' => 'Wheelchair accessible'
+            ]
+        ]);
+
+        // Event 5: Streetwear & Sneakers Festival
+        $event5 = Event::create([
+            'name' => 'Streetwear & Sneakers Festival',
+            'description' => 'Een festival dat streetwear en sneaker cultuur samenbrengt met live muziek, food trucks en exclusive drops.',
+            'location' => 'Ziggo Dome, Amsterdam',
+            'start_date' => '2025-12-22',
+            'end_date' => '2025-12-22',
+            'start_time' => '16:00',
+            'end_time' => '23:00',
+            'is_active' => true,
+            'status' => 'upcoming',
+            'base_price' => 35.00,
+            'image_url' => '/images/streetwear-festival.jpg',
+            'additional_info' => [
+                'website' => 'https://streetwearfestival.nl',
+                'contact_email' => 'info@streetwearfestival.nl',
+                'parking' => 'Paid parking adjacent',
+                'accessibility' => 'Full accessibility'
+            ]
+        ]);
+
+        // Event 6: Sneaker Swap Meet Eindhoven
+        $event6 = Event::create([
+            'name' => 'Sneaker Swap Meet Eindhoven',
+            'description' => 'Ruil, verkoop en koop sneakers in een relaxte sfeer. Perfect voor verzamelaars en liefhebbers.',
+            'location' => 'Klokgebouw, Eindhoven',
+            'start_date' => '2025-11-30',
+            'end_date' => '2025-11-30',
+            'start_time' => '13:00',
+            'end_time' => '17:00',
+            'is_active' => true,
+            'status' => 'upcoming',
+            'base_price' => 12.00,
+            'image_url' => '/images/sneaker-swap-eindhoven.jpg',
+            'additional_info' => [
+                'website' => 'https://sneakerswap.nl',
+                'contact_email' => 'swap@sneakerswap.nl',
+                'parking' => 'Free parking',
+                'accessibility' => 'Accessible venue'
+            ]
+        ]);
     }
 }
