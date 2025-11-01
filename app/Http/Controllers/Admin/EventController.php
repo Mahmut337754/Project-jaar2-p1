@@ -100,32 +100,45 @@ class EventController extends Controller
      */
     public function destroy(Event $event): RedirectResponse
     {
-        // Load related data using joins for comprehensive validation
-        $event->load(['tickets', 'ticketPurchases.user']);
-        
-        // Check if event has sold tickets using join relationships
-        $ticketsSold = $event->ticketPurchases()
-            ->join('tickets', 'ticket_purchases.ticket_id', '=', 'tickets.id')
-            ->where('tickets.event_id', $event->id)
-            ->count();
+        try {
+            // Load related data using joins for comprehensive validation
+            $event->load(['tickets', 'ticketPurchases.user']);
             
-        if ($ticketsSold > 0) {
+            // Check if event has sold tickets using join relationships
+            $ticketsSold = $event->ticketPurchases()
+                ->join('tickets', 'ticket_purchases.ticket_id', '=', 'tickets.id')
+                ->where('tickets.event_id', $event->id)
+                ->count();
+                
+            if ($ticketsSold > 0) {
+                return redirect()->route('admin.events.edit', $event)
+                                ->with('error', 'Event kan niet worden verwijderd, er zijn tickets verkocht.');
+            }
+
+            $eventName = $event->name;
+            $event->delete();
+
+            // Log successful deletion
+            Log::info('Event succesvol verwijderd', [
+                'event_id' => $event->id,
+                'event_name' => $eventName,
+                'user_id' => auth()->id(),
+                'timestamp' => now()
+            ]);
+
+            return redirect()->route('admin.events.index')
+                            ->with('success', "Event '{$eventName}' is succesvol verwijderd!");
+        } catch (\Exception $e) {
+            // Log error
+            Log::error('Fout bij verwijderen event', [
+                'event_id' => $event->id,
+                'error' => $e->getMessage(),
+                'user_id' => auth()->id(),
+                'timestamp' => now()
+            ]);
+            
             return redirect()->route('admin.events.edit', $event)
-                            ->with('error', 'Event kan niet worden verwijderd, er zijn tickets verkocht.');
+                            ->with('error', 'Er is een fout opgetreden bij het verwijderen van het event.');
         }
-
-        $eventName = $event->name;
-        $event->delete();
-
-        // Log successful deletion
-        Log::info('Event succesvol verwijderd', [
-            'event_id' => $event->id,
-            'event_name' => $eventName,
-            'user_id' => auth()->id(),
-            'timestamp' => now()
-        ]);
-
-        return redirect()->route('admin.events.index')
-                        ->with('success', "Event '{$eventName}' is succesvol verwijderd!");
     }
 }
