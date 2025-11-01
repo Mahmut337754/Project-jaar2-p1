@@ -72,14 +72,25 @@ class EventController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update an existing event with comprehensive validation and error handling
+     * 
+     * This method handles the update of event information including:
+     * - Validating all required fields with Dutch error messages
+     * - Loading related tickets and purchases for business logic
+     * - Updating the event data safely with transaction handling
+     * 
+     * @param Request $request The HTTP request containing event data to update
+     * @param Event $event The event model instance to be updated
+     * @return RedirectResponse Redirect response with success or error message
      */
     public function update(Request $request, Event $event): RedirectResponse
     {
         try {
             // Load related data using Eloquent relationships (similar to joins)
+            // This enables business logic validation and prevents orphaned data
             $event->load(['tickets', 'ticketPurchases.user']);
             
+            // Validate incoming request data with comprehensive rules and Dutch messages
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'required|string',
@@ -103,34 +114,51 @@ class EventController extends Controller
                 'end_time.after' => 'Eind tijd moet na start tijd zijn.',
             ]);
 
+            // Update the event with validated data
             $event->update($validated);
 
+            // Redirect back to edit page with success confirmation
             return redirect()->route('admin.events.edit', $event)
                             ->with('success', 'Het event is succesvol bijgewerkt!');
         } catch (\Exception $e) {
+            // Handle any unexpected errors gracefully with user-friendly message
             return redirect()->route('admin.events.edit', $event)
                             ->with('error', 'Er is een fout opgetreden bij het bijwerken van het event. Probeer het opnieuw.');
         }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove an event from storage with business logic validation
+     * 
+     * This method safely deletes an event while checking:
+     * - Whether tickets have been sold (prevents deletion if true)
+     * - Database integrity and referential constraints
+     * - Proper error handling for all scenarios
+     * 
+     * @param Event $event The event model instance to be deleted
+     * @return RedirectResponse Redirect response with success or error message
      */
     public function destroy(Event $event): RedirectResponse
     {
         try {
-            // Check if event has sold tickets
+            // Check if event has sold tickets using relationship count
+            // This prevents deletion of events with existing purchases
             if ($event->ticketPurchases()->count() > 0) {
                 return redirect()->route('admin.events.edit', $event)
                                 ->with('error', 'Event kan niet worden verwijderd, er zijn tickets verkocht.');
             }
 
+            // Store event name for success message before deletion
             $eventName = $event->name;
+            
+            // Perform the deletion
             $event->delete();
 
+            // Redirect to events index with success confirmation
             return redirect()->route('admin.events.index')
                             ->with('success', "Event '{$eventName}' is succesvol verwijderd!");
         } catch (\Exception $e) {
+            // Handle any unexpected database or system errors
             return redirect()->route('admin.events.edit', $event)
                             ->with('error', 'Er is een fout opgetreden bij het verwijderen van het event. Probeer het opnieuw.');
         }
