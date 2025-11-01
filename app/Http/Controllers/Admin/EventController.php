@@ -76,23 +76,38 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'location' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'base_price' => 'nullable|numeric|min:0',
-            'image_url' => 'nullable|url',
-            'status' => 'required|in:upcoming,ongoing,completed,cancelled'
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'required|string',
+                'location' => 'required|string|max:255',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i|after:start_time',
+                'base_price' => 'nullable|numeric|min:0',
+                'image_url' => 'nullable|url',
+                'status' => 'required|in:draft,published,cancelled'
+            ], [
+                'name.required' => 'Event naam is verplicht.',
+                'description.required' => 'Event beschrijving is verplicht.',
+                'location.required' => 'Event locatie is verplicht.',
+                'start_date.required' => 'Start datum is verplicht.',
+                'end_date.required' => 'Eind datum is verplicht.',
+                'start_time.required' => 'Start tijd is verplicht.',
+                'end_time.required' => 'Eind tijd is verplicht.',
+                'end_date.after_or_equal' => 'Eind datum moet na of gelijk aan start datum zijn.',
+                'end_time.after' => 'Eind tijd moet na start tijd zijn.',
+            ]);
 
-        $event->update($validated);
+            $event->update($validated);
 
-        return redirect()->route('admin.events.show', $event)
-                        ->with('success', 'Event updated successfully!');
+            return redirect()->route('admin.events.edit', $event)
+                            ->with('success', 'Het event is succesvol bijgewerkt!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.events.edit', $event)
+                            ->with('error', 'Er is een fout opgetreden bij het bijwerken van het event. Probeer het opnieuw.');
+        }
     }
 
     /**
@@ -100,9 +115,21 @@ class EventController extends Controller
      */
     public function destroy(Event $event): RedirectResponse
     {
-        $event->delete();
+        try {
+            // Check if event has sold tickets
+            if ($event->ticketPurchases()->count() > 0) {
+                return redirect()->route('admin.events.edit', $event)
+                                ->with('error', 'Event kan niet worden verwijderd, er zijn tickets verkocht.');
+            }
 
-        return redirect()->route('admin.events.index')
-                        ->with('success', 'Event deleted successfully!');
+            $eventName = $event->name;
+            $event->delete();
+
+            return redirect()->route('admin.events.index')
+                            ->with('success', "Event '{$eventName}' is succesvol verwijderd!");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.events.edit', $event)
+                            ->with('error', 'Er is een fout opgetreden bij het verwijderen van het event. Probeer het opnieuw.');
+        }
     }
 }

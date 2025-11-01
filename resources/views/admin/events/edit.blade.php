@@ -7,6 +7,34 @@
 
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <!-- Success Message -->
+            @if(session('success'))
+                <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Succes!</strong>
+                    <span class="block sm:inline">{{ session('success') }}</span>
+                </div>
+            @endif
+
+            <!-- Error Messages -->
+            @if(session('error'))
+                <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Fout!</strong>
+                    <span class="block sm:inline">{{ session('error') }}</span>
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Fout!</strong>
+                    <span class="block sm:inline">Vul alle verplichte velden in voordat je het event kunt wijzigen.</span>
+                    <ul class="mt-2 list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <form action="{{ route('admin.events.update', $event) }}" method="POST">
@@ -124,16 +152,32 @@
                             </div>
                         </div>
 
-                        <div class="mt-6 flex items-center justify-end space-x-3">
-                            <a href="{{ route('admin.events.index') }}" 
-                               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                                Cancel
-                            </a>
-                            <button type="submit" 
-                                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Update Event
-                            </button>
+                        <div class="mt-6 flex items-center justify-between">
+                            <div>
+                                <!-- Delete Button -->
+                                <button type="button" onclick="confirmDelete()" 
+                                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                    Delete Event
+                                </button>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ route('admin.events.index') }}" 
+                                   class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                                    Cancel
+                                </a>
+                                <button type="submit" 
+                                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                    Update Event
+                                </button>
+                            </div>
                         </div>
+                    </form>
+
+                    <!-- Hidden Delete Form -->
+                    <form id="deleteForm" action="{{ route('admin.events.destroy', $event) }}" method="POST" style="display: none;">
+                        @csrf
+                        @method('DELETE')
                     </form>
                 </div>
             </div>
@@ -158,4 +202,12 @@
             @endif
         </div>
     </div>
+
+    <script>
+        function confirmDelete() {
+            if (confirm('Weet je zeker dat je dit event wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.')) {
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
 </x-app-layout>
