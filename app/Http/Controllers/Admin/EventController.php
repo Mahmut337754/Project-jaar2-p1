@@ -100,9 +100,16 @@ class EventController extends Controller
      */
     public function destroy(Event $event): RedirectResponse
     {
+        // Check if event has sold tickets
+        if ($event->ticketPurchases()->count() > 0) {
+            return redirect()->route('admin.events.edit', $event)
+                            ->with('error', 'Event kan niet worden verwijderd, er zijn tickets verkocht.');
+        }
+
+        $eventName = $event->name;
         $event->delete();
 
         return redirect()->route('admin.events.index')
-                        ->with('success', 'Event deleted successfully!');
+                        ->with('success', "Event '{$eventName}' is succesvol verwijderd!");
     }
 }
