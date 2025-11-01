@@ -77,6 +77,9 @@ class EventController extends Controller
     public function update(Request $request, Event $event): RedirectResponse
     {
         try {
+            // Load related data using Eloquent relationships (similar to joins)
+            $event->load(['tickets', 'ticketPurchases.user']);
+            
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'required|string',
