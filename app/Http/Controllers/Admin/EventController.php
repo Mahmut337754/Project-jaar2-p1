@@ -96,7 +96,16 @@ class EventController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Verwijder een event uit de database met uitgebreide validatie
+     * 
+     * Deze methode voert een veilige verwijdering uit waarbij:
+     * - Gecontroleerd wordt of er tickets verkocht zijn
+     * - Database integriteit gewaarborgd blijft
+     * - Uitgebreide logging voor audit trail
+     * - Robuuste error handling voor alle scenario's
+     * 
+     * @param Event $event Het event model dat verwijderd moet worden
+     * @return RedirectResponse Redirect met succes of foutmelding
      */
     public function destroy(Event $event): RedirectResponse
     {
