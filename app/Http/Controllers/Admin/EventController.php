@@ -100,8 +100,16 @@ class EventController extends Controller
      */
     public function destroy(Event $event): RedirectResponse
     {
-        // Check if event has sold tickets
-        if ($event->ticketPurchases()->count() > 0) {
+        // Load related data using joins for comprehensive validation
+        $event->load(['tickets', 'ticketPurchases.user']);
+        
+        // Check if event has sold tickets using join relationships
+        $ticketsSold = $event->ticketPurchases()
+            ->join('tickets', 'ticket_purchases.ticket_id', '=', 'tickets.id')
+            ->where('tickets.event_id', $event->id)
+            ->count();
+            
+        if ($ticketsSold > 0) {
             return redirect()->route('admin.events.edit', $event)
                             ->with('error', 'Event kan niet worden verwijderd, er zijn tickets verkocht.');
         }
