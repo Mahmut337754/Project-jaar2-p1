@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 
 class EventController extends Controller
 {
@@ -116,6 +116,14 @@ class EventController extends Controller
 
         $eventName = $event->name;
         $event->delete();
+
+        // Log successful deletion
+        Log::info('Event succesvol verwijderd', [
+            'event_id' => $event->id,
+            'event_name' => $eventName,
+            'user_id' => auth()->id(),
+            'timestamp' => now()
+        ]);
 
         return redirect()->route('admin.events.index')
                         ->with('success', "Event '{$eventName}' is succesvol verwijderd!");
