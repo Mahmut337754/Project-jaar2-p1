@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 class EventController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of events with pagination and statistics
      */
     public function index(): View
     {
@@ -24,7 +24,7 @@ class EventController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new event
      */
     public function create(): View
     {
