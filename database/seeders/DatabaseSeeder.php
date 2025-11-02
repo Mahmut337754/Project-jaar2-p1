@@ -13,10 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-<<<<<<< HEAD
-        // User::factory(10)->create();
-
-=======
         // Seed roles first
         $this->call(RoleSeeder::class);
 
@@ -49,16 +45,12 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create test user
->>>>>>> dev
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
-<<<<<<< HEAD
-=======
 
         // Call event seeder
         $this->call(EventSeeder::class);
->>>>>>> dev
     }
 }

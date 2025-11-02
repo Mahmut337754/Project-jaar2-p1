@@ -39,6 +39,9 @@
                             <x-nav-link :href="route('admin.tickets.index')" :active="request()->routeIs('admin.tickets.*')">
                                 {{ __('Tickets') }}
                             </x-nav-link>
+                            <x-nav-link :href="route('sellers.index')" :active="request()->routeIs('sellers.*')">
+                                {{ __('Verkopers') }}
+                            </x-nav-link>
                             <x-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
                                 {{ __('Users') }}
                             </x-nav-link>

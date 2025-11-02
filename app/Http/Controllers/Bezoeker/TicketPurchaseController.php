@@ -11,6 +11,9 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TicketPurchaseConfirmation;
 
 class TicketPurchaseController extends Controller
 {
@@ -120,26 +123,45 @@ class TicketPurchaseController extends Controller
      */
     public function store(Request $request, Event $event, Ticket $ticket): RedirectResponse
     {
-        if (!$ticket->isAvailable() || $ticket->event_id !== $event->id) {
-            return redirect()->back()->with('error', 'Ticket is no longer available');
-        }
-
-        $validated = $request->validate([
-            'quantity' => 'required|integer|min:1|max:10',
-            'buyer_name' => 'required|string|max:255',
-            'buyer_email' => 'required|email|max:255',
-            'buyer_phone' => 'nullable|string|max:20',
-        ]);
-
-        $quantity = $validated['quantity'];
-
-        // Check if enough tickets are available
-        if ($ticket->available_quantity < $quantity) {
-            return redirect()->back()->with('error', 'Not enough tickets available. Only ' . $ticket->available_quantity . ' tickets left.');
-        }
-
         try {
-            DB::transaction(function () use ($validated, $event, $ticket, $quantity) {
+            // Check ticket availability
+            if (!$ticket->isAvailable() || $ticket->event_id !== $event->id) {
+                Log::warning('Attempted to purchase unavailable ticket', [
+                    'user_id' => Auth::id(),
+                    'ticket_id' => $ticket->id,
+                    'event_id' => $event->id,
+                    'ticket_available' => $ticket->isAvailable(),
+                    'ticket_belongs_to_event' => $ticket->event_id === $event->id
+                ]);
+                
+                return redirect()->back()->with('error', 'Ticket is no longer available');
+            }
+
+            $validated = $request->validate([
+                'quantity' => 'required|integer|min:1|max:10',
+                'buyer_name' => 'required|string|max:255',
+                'buyer_email' => 'required|email|max:255',
+                'buyer_phone' => 'nullable|string|max:20',
+            ]);
+
+            $quantity = $validated['quantity'];
+
+            // Check if enough tickets are available
+            if ($ticket->available_quantity < $quantity) {
+                Log::warning('Insufficient ticket quantity attempted', [
+                    'user_id' => Auth::id(),
+                    'ticket_id' => $ticket->id,
+                    'requested_quantity' => $quantity,
+                    'available_quantity' => $ticket->available_quantity
+                ]);
+                
+                return redirect()->back()
+                                ->withInput()
+                                ->with('error', 'Not enough tickets available. Only ' . $ticket->available_quantity . ' tickets left.');
+            }
+
+            // Process purchase in database transaction
+            $purchase = DB::transaction(function () use ($validated, $event, $ticket, $quantity) {
                 // Calculate total price
                 $unitPrice = $ticket->price;
                 $totalPrice = $unitPrice * $quantity;
@@ -162,13 +184,63 @@ class TicketPurchaseController extends Controller
 
                 // Update ticket sold quantity
                 $ticket->increment('sold_quantity', $quantity);
+
+                return $purchase;
             });
 
+            Log::info('Ticket purchase completed successfully', [
+                'purchase_id' => $purchase->id,
+                'user_id' => Auth::id(),
+                'ticket_id' => $ticket->id,
+                'event_id' => $event->id,
+                'quantity' => $quantity,
+                'total_price' => $purchase->total_price,
+                'reference' => $purchase->purchase_reference
+            ]);
+
+            // Send confirmation email
+            try {
+                Mail::to($purchase->buyer_email)->send(new TicketPurchaseConfirmation([
+                    'purchase' => $purchase,
+                    'ticket' => $ticket,
+                    'event' => $event,
+                    'quantity' => $quantity
+                ]));
+            } catch (\Exception $e) {
+                Log::error('Failed to send confirmation email: ' . $e->getMessage(), [
+                    'purchase_id' => $purchase->id,
+                    'buyer_email' => $purchase->buyer_email
+                ]);
+            }
+
             return redirect()->route('bezoeker.tickets.my-tickets')
-                           ->with('success', 'Tickets purchased successfully! Check your email for confirmation.');
+                            ->with('success', 'Ticket(s) purchased successfully! Reference: ' . $purchase->purchase_reference);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Validation failed for ticket purchase', [
+                'user_id' => Auth::id(),
+                'ticket_id' => $ticket->id,
+                'errors' => $e->errors(),
+                'input' => $request->all()
+            ]);
+            
+            return redirect()->back()
+                            ->withErrors($e->errors())
+                            ->withInput()
+                            ->with('error', 'Please check the form for errors and try again.');
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred during purchase. Please try again.');
+            Log::error('Error processing ticket purchase: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'ticket_id' => $ticket->id,
+                'event_id' => $event->id,
+                'request_data' => $request->all(),
+                'exception' => $e
+            ]);
+            
+            return redirect()->back()
+                            ->withInput()
+                            ->with('error', 'An error occurred while processing your purchase. Please try again or contact support.');
         }
     }
 
@@ -177,11 +249,22 @@ class TicketPurchaseController extends Controller
      */
     public function myTickets(): View
     {
-        $purchases = TicketPurchase::with(['event', 'ticket'])
-                                  ->where('user_id', Auth::id())
-                                  ->orderBy('purchased_at', 'desc')
-                                  ->paginate(10);
+        try {
+            $purchases = TicketPurchase::with(['event', 'ticket'])
+                                      ->where('user_id', Auth::id())
+                                      ->orderBy('purchased_at', 'desc')
+                                      ->paginate(10);
 
-        return view('bezoeker.tickets.my-tickets', compact('purchases'));
+            return view('bezoeker.tickets.my-tickets', compact('purchases'));
+
+        } catch (\Exception $e) {
+            Log::error('Error loading user tickets: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'exception' => $e
+            ]);
+
+            return view('bezoeker.tickets.my-tickets', ['purchases' => collect()])
+                   ->with('error', 'Unable to load your tickets. Please try again.');
+        }
     }
 }
