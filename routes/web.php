@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Organisator\OrganisatorDashboardController;
 use App\Http\Controllers\Verkoper\VerkoperDashboardController;
 use App\Http\Controllers\Bezoeker\BezoekerDashboardController;
+use App\Http\Controllers\SellerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -69,5 +70,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Voeg deze onderaan of op een logische plek toe:
+Route::resource('sellers', SellerController::class);
+
 
 require __DIR__.'/auth.php';
